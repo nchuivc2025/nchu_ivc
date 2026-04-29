@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tracing the Light | 興大國際志工年度成果展</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Cinzel, GFS Didot 與 Noto Serif TC -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=GFS+Didot&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,511 +12,173 @@
             --color-dark: #0A0A0A;
             --color-ivc-green: #326755;
         }
-        html {
-            scroll-behavior: smooth;
+        html, body {
+            height: 100%;
+            margin: 0;
         }
         body {
             background-color: var(--color-dark);
             color: #E5E5E5;
             font-family: 'Noto Serif TC', serif;
         }
-        
-        /* 僅主標題使用的字體：Cinzel, 不粗體, 一行顯示 */
-        .font-cinzel {
-            font-family: 'Cinzel', serif;
-            font-weight: 400;
-        }
-        
-        /* 其他英文標題使用的字體：GFS Didot */
-        .font-didot {
-            font-family: 'GFS Didot', serif;
-        }
+        .font-cinzel { font-family: 'Cinzel', serif; font-weight: 400; }
+        .font-didot  { font-family: 'GFS Didot', serif; }
+        .gold-text   { color: var(--color-gold); }
+        .gold-bg     { background-color: var(--color-gold); }
 
-        .gold-text { color: var(--color-gold); }
-        .gold-border { border-color: var(--color-gold); }
-        .gold-bg { background-color: var(--color-gold); }
-        
-        /* 導覽列 Logo 顏色 */
-        .logo-bg { background-color: var(--color-ivc-green); }
-
-        .hero-section {
-            /* ★首頁主大圖★ */
-            background-image: linear-gradient(to bottom, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.9) 100%), 
-                              url('https://lh3.googleusercontent.com/d/1f6kVP_ypNOeiVg4T4lNEYW6VCl2oVXmB'); 
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-
-        .nav-link::after {
-            content: '';
-            display: block;
-            width: 0;
-            height: 1px;
-            background: var(--color-gold);
-            transition: width .3s;
-        }
-        .nav-link:hover::after { width: 100%; }
-
-        /* 燈箱 Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
+        .hero-img {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.95);
-            overflow-y: auto;
+            object-fit: cover;
+            object-position: center;
+            z-index: 0;
         }
-        .modal.active {
-            display: block;
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(10,10,10,0.25) 0%, rgba(10,10,10,0.85) 60%, rgba(10,10,10,1) 100%);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
         }
 
-        /* 文字陰影增強可讀性 */
-        .shadow-text {
-            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        /* 倒數數字 */
+        .countdown-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 64px;
+        }
+        .countdown-num {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 400;
+            color: #D4AF37;
+            line-height: 1;
+        }
+        .countdown-label {
+            font-family: 'GFS Didot', serif;
+            font-size: 9px;
+            letter-spacing: 0.25em;
+            color: rgba(255,255,255,0.4);
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .countdown-sep {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: #D4AF37;
+            opacity: 0.4;
+            margin: 0 8px;
+            padding-bottom: 18px;
         }
 
-        .card-hover:hover {
-            transform: translateY(-5px);
-            transition: all 0.3s ease;
-        }
+        .shadow-text { text-shadow: 0 4px 20px rgba(0,0,0,0.6); }
     </style>
 </head>
 <body>
+    <section class="hero">
+        <img class="hero-img" src="https://lh3.googleusercontent.com/d/1f6kVP_ypNOeiVg4T4lNEYW6VCl2oVXmB" alt="背景大圖">
+        <div class="hero-overlay"></div>
+        <div class="hero-content text-center px-6 w-full max-w-3xl mx-auto">
 
-    <!-- 導覽列 -->
-    <nav class="fixed w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <div class="w-10 h-10 logo-bg rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">IVC</div>
-                <span class="text-sm tracking-widest uppercase font-cinzel">Tracing the Light</span>
-            </div>
-            
-            <!-- 桌面版選單 -->
-            <div class="hidden lg:flex space-x-6 text-[10px] tracking-widest items-center">
-                <a href="#home" class="nav-link">首頁 HOME</a>
-                <a href="#about" class="nav-link">關於展覽 ABOUT</a>
-                <a href="#nepal" class="nav-link">尼泊爾 NEPAL</a>
-                <a href="#domestic" class="nav-link">國內服務 DOMESTIC</a>
-                <a href="#team" class="nav-link">團隊 TEAM</a>
-                <a href="#contact" class="nav-link">回饋 CONTACT</a>
-                <div class="h-4 w-[1px] bg-white/20 mx-2"></div>
-                <a href="https://oia.nchu.edu.tw/index.php/zh/" target="_blank" class="hover:text-gold-400 transition-colors opacity-70 hover:opacity-100 flex items-center">
-                    <span class="mr-1">OIA 國際事務處</span>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                </a>
-            </div>
-            
-            <div class="lg:hidden">
-                <button id="menu-btn" class="text-white text-2xl">☰</button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- 手機版選單 -->
-    <div id="mobile-menu" class="fixed inset-0 bg-black z-[60] flex flex-col items-center justify-center space-y-8 text-lg tracking-widest md:hidden transition-transform duration-300 translate-x-full">
-        <button id="close-btn" class="absolute top-6 right-6 text-3xl">&times;</button>
-        <a href="#home" class="mobile-nav-link">首頁 HOME</a>
-        <a href="#about" class="mobile-nav-link">關於展覽 ABOUT</a>
-        <a href="#nepal" class="mobile-nav-link">尼泊爾 NEPAL</a>
-        <a href="#domestic" class="mobile-nav-link">國內服務 DOMESTIC</a>
-        <a href="#team" class="mobile-nav-link">團隊 TEAM</a>
-        <a href="https://oia.nchu.edu.tw/index.php/zh/" target="_blank" class="mobile-nav-link gold-text">OIA 國際事務處</a>
-    </div>
-
-    <!-- 主視覺區 (Hero) -->
-    <section id="home" class="hero-section relative flex items-center justify-center overflow-hidden">
-        <div class="relative z-10 text-center px-4 max-w-full">
-            <p class="text-xs md:text-sm tracking-[0.4em] mb-6 opacity-80 uppercase">2026 Annual International Volunteers Club Exhibition</p>
-            <!-- Tracing the Light：字體稍微縮小，一行顯示，Cinzel -->
-            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl mb-8 tracking-tight shadow-text whitespace-nowrap">Tracing the Light</h1>
-            <h2 class="text-lg md:text-xl gold-text tracking-[0.3em] mb-12 italic">A Journey from Mud to Stars</h2>
-            <div class="h-[1px] w-32 gold-bg mx-auto mb-10 opacity-60"></div>
-            <p class="text-sm tracking-[0.2em] mb-12 leading-loose">05/11 MON. - 05/15 FRI. <br> 國立中興大學 雲平樓 1F</p>
-            <a href="#about" class="border gold-border px-10 py-4 text-xs tracking-widest hover:bg-white/10 transition-all uppercase">開啟線上展覽之旅 Explore</a>
-        </div>
-    </section>
-
-    <!-- 關於展覽 -->
-    <section id="about" class="py-32 px-6 bg-black">
-        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-20 items-center">
-            <div>
-                <h3 class="text-4xl mb-10 gold-text tracking-wide font-didot italic">About Exhibition</h3>
-                <h4 class="text-2xl mb-6">『尼』土與星空：跨越邊界的橋樑</h4>
-                <div class="space-y-8 text-gray-400 leading-relaxed text-base">
-                    <p>這是一場關於「連結」的旅程紀錄。在過去的一年裡，我們彎下腰，在雲林的育幼院、苗栗的農田以及溫暖的狗園中感受「泥土」的芬芳，隨後我們帶著這份初心，跨越邊界，抵達尼泊爾拉傑比拉傑的校園。</p>
-                    <p>我們將自己定位為一座「橋樑」：一端連接著在地社會的需要，另一端通往國際視野的廣度。這不僅是志願服務，更是自我的重新發現。</p>
-                </div>
-            </div>
-            <div class="relative group">
-                <div class="absolute -top-6 -left-6 w-32 h-32 border-t-2 border-l-2 gold-border opacity-40"></div>
-                <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=2071&auto=format&fit=crop" alt="Nepal Children" class="w-full grayscale hover:grayscale-0 transition-all duration-1000 shadow-2xl">
-                <div class="absolute -bottom-6 -right-6 w-32 h-32 border-b-2 border-r-2 gold-border opacity-40"></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 尼泊爾專區 -->
-    <section id="nepal" class="py-24 px-6 bg-zinc-900/50">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-20">
-                <h2 class="font-didot text-5xl mb-4 italic">Nepal Showcase</h2>
-                <div class="h-1 w-12 gold-bg mx-auto mb-4"></div>
-                <p class="text-[10px] tracking-[0.4em] gold-text uppercase">尼泊爾成果專區：點擊方塊探索更多照片</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <div onclick="openModal('nepal-1')" class="bg-black/40 p-8 card-hover border border-white/5 cursor-pointer group">
-                    <div class="aspect-video bg-zinc-800 mb-8 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1540959733332-e9ab677066b2?q=80&w=2069&auto=format&fit=crop" alt="Nepal School" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                    </div>
-                    <h4 class="text-xl mb-4 gold-text">拉傑比拉傑：校園與微笑</h4>
-                    <p class="text-sm text-gray-500 leading-relaxed">即便資源匱乏，孩子們眼中閃爍的光芒卻是全世界最明亮的風景。</p>
-                    <div class="mt-6 text-[10px] gold-text tracking-widest font-bold font-didot">DISCOVER MORE +</div>
-                </div>
-                <div onclick="openModal('nepal-2')" class="bg-black/40 p-8 card-hover border border-white/5 cursor-pointer group">
-                    <div class="aspect-video bg-zinc-800 mb-8 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?q=80&w=2067&auto=format&fit=crop" alt="Culture" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                    </div>
-                    <h4 class="text-xl mb-4 gold-text">文化連結：跨越 3000 公里</h4>
-                    <p class="text-sm text-gray-500 leading-relaxed">經幡隨風飛揚，我們跨越了地理與語言的限制，開始深層對話。</p>
-                    <div class="mt-6 text-[10px] gold-text tracking-widest font-bold font-didot">DISCOVER MORE +</div>
-                </div>
-                <div onclick="openModal('nepal-3')" class="bg-black/40 p-8 card-hover border border-white/5 cursor-pointer group">
-                    <div class="aspect-video bg-zinc-800 mb-8 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1518398046578-8cca57732e17?q=80&w=2070&auto=format&fit=crop" alt="Stars" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                    </div>
-                    <h4 class="text-xl mb-4 gold-text">仰望星空：未來的希望</h4>
-                    <p class="text-sm text-gray-500 leading-relaxed">在無光害的高山上，我們共同許下約定。這份力量將伴隨我們前行。</p>
-                    <div class="mt-6 text-[10px] gold-text tracking-widest font-bold font-didot">DISCOVER MORE +</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 國內服務專區 (Domestic Service) -->
-    <section id="domestic" class="py-24 px-6 bg-black">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-20">
-                <h2 class="font-didot text-5xl mb-4 italic">Domestic Service</h2>
-                <div class="h-1 w-12 gold-bg mx-auto mb-4"></div>
-                <p class="text-[10px] tracking-[0.4em] gold-text uppercase">在地深耕：國內紮根與成長</p>
-            </div>
-            
-            <!-- 國內服務三欄網格 -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- 雲林育育院 -->
-                <div onclick="openModal('dom-1')" class="group cursor-pointer">
-                    <div class="relative overflow-hidden mb-6 aspect-square">
-                        <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop" alt="Charity" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
-                    </div>
-                    <h4 class="text-xl gold-text mb-3 tracking-wide">雲林育幼院：溫慢陪伴</h4>
-                    <p class="text-xs text-gray-500 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">透過長期的課業輔導與陪伴，我們希望成為孩子們成長路上的微光。</p>
-                    <div class="mt-4 text-[10px] tracking-[0.2em] border-b border-gold-border/30 inline-block pb-1 group-hover:gold-border transition-all">LEARN MORE</div>
-                </div>
-
-                <!-- 狗園守護 -->
-                <div onclick="openModal('dom-2')" class="group cursor-pointer">
-                    <div class="relative overflow-hidden mb-6 aspect-square">
-                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=2069&auto=format&fit=crop" alt="Dog Shelter" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
-                    </div>
-                    <h4 class="text-xl gold-text mb-3 tracking-wide">狗園守護：生命的重量</h4>
-                    <p class="text-xs text-gray-500 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">在流浪狗園中，我們學習與生命對話，實踐對每一個生命的尊重。</p>
-                    <div class="mt-4 text-[10px] tracking-[0.2em] border-b border-gold-border/30 inline-block pb-1 group-hover:gold-border transition-all">LEARN MORE</div>
-                </div>
-
-                <!-- 苗栗農田 -->
-                <div onclick="openModal('dom-3')" class="group cursor-pointer">
-                    <div class="relative overflow-hidden mb-6 aspect-square">
-                        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2069&auto=format&fit=crop" alt="Farm" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
-                    </div>
-                    <h4 class="text-xl gold-text mb-3 tracking-wide">苗栗農田：友善土地</h4>
-                    <p class="text-xs text-gray-500 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">走入農間體驗永續耕作，重新建立人與自然環境的親密橋樑。</p>
-                    <div class="mt-4 text-[10px] tracking-[0.2em] border-b border-gold-border/30 inline-block pb-1 group-hover:gold-border transition-all">LEARN MORE</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 團隊成員 -->
-    <section id="team" class="py-32 px-6 bg-zinc-900/30">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-24">
-                <h2 class="font-didot text-5xl mb-4 italic">Meet the Team</h2>
-                <p class="text-[10px] tracking-[0.4em] gold-text uppercase">團隊成員：指導老師與志工夥伴</p>
-            </div>
-            
-            <!-- 指導老師區 -->
-            <div class="grid grid-cols-2 gap-10 text-center mb-24 max-w-md mx-auto">
-                <div class="group">
-                    <div class="aspect-[4/5] bg-zinc-900 mb-6 border-2 gold-border/30 group-hover:gold-border transition-colors overflow-hidden relative">
-                        <img src="" alt="黃品慈" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden')">
-                        <div class="w-full h-full flex items-center justify-center text-[10px] text-gray-700 italic">Portrait</div>
-                    </div>
-                    <p class="text-base font-bold mb-1">黃品慈</p>
-                    <p class="text-[10px] gold-text opacity-70 tracking-widest uppercase font-didot">Advisory Teacher</p>
-                </div>
-                <div class="group">
-                    <div class="aspect-[4/5] bg-zinc-900 mb-6 border-2 gold-border/30 group-hover:gold-border transition-colors overflow-hidden relative">
-                        <img src="" alt="鄭任鈞" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden')">
-                        <div class="w-full h-full flex items-center justify-center text-[10px] text-gray-700 italic">Portrait</div>
-                    </div>
-                    <p class="text-base font-bold mb-1">鄭任鈞</p>
-                    <p class="text-[10px] gold-text opacity-70 tracking-widest uppercase font-didot">Advisory Teacher</p>
-                </div>
-            </div>
-
-            <!-- 志工成員區 -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 text-center">
-                <script>
-                    const volunteers = ["劉宜婷", "許競恬", "李沛頎", "阮圖源", "張凱鈞", "李彥樺", "李晴奕", "林家安", "葉熙賢", "林筠臻", "蔡昀珈", "江采融"];
-                    volunteers.forEach((name) => {
-                        document.write(`
-                            <div class="group cursor-pointer">
-                                <div class="aspect-[3/4] bg-zinc-900 mb-4 grayscale group-hover:grayscale-0 transition-all border border-white/5 group-hover:gold-border flex items-center justify-center overflow-hidden shadow-lg">
-                                    <img src="" alt="${name}" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden')">
-                                    <span class="text-[10px] text-gray-700 italic font-didot">PHOTO</span>
-                                </div>
-                                <p class="text-sm mb-1">${name}</p>
-                                <p class="text-[10px] gold-text opacity-60 font-didot">Volunteer</p>
-                            </div>
-                        `);
-                    });
-                </script>
-            </div>
-        </div>
-    </section>
-
-    <!-- 特別感謝與特別單位 -->
-    <section id="contact" class="py-32 px-6 bg-zinc-950 text-center">
-        <div class="max-w-5xl mx-auto">
-            <div class="mb-32">
-                <h3 class="text-[10px] tracking-[0.5em] gold-text uppercase mb-16 font-didot">Special Thanks</h3>
-                
-                <!-- 領隊區 -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20 max-w-3xl mx-auto">
-                    <div class="group">
-                        <div class="aspect-square bg-zinc-900 border border-white/10 mb-6 overflow-hidden transition-all group-hover:gold-border">
-                            <img src="" alt="Mohammad Rahaman" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden')">
-                            <div class="w-full h-full flex items-center justify-center text-[10px] text-gray-700 italic font-didot">Portrait</div>
-                        </div>
-                        <p class="text-xl font-bold mb-2">Mohammad Rahaman</p>
-                        <p class="text-[10px] opacity-40 uppercase tracking-[0.2em] font-didot">Project Coordinator</p>
-                    </div>
-                    <div class="group">
-                        <div class="aspect-square bg-zinc-900 border border-white/10 mb-6 overflow-hidden transition-all group-hover:gold-border">
-                            <img src="" alt="朱紹瑀" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden')">
-                            <div class="w-full h-full flex items-center justify-center text-[10px] text-gray-700 italic">Portrait</div>
-                        </div>
-                        <p class="text-xl font-bold mb-2">朱紹瑀</p>
-                        <p class="text-[10px] opacity-40 uppercase tracking-[0.2em] font-didot">Project Coordinator</p>
-                    </div>
-                    <div class="group">
-                        <div class="aspect-square bg-zinc-900 border border-white/10 mb-6 overflow-hidden transition-all group-hover:gold-border">
-                            <img src="" alt="梁湘翎" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden')">
-                            <div class="w-full h-full flex items-center justify-center text-[10px] text-gray-700 italic">Portrait</div>
-                        </div>
-                        <p class="text-xl font-bold mb-2">梁湘翎</p>
-                        <p class="text-[10px] opacity-40 uppercase tracking-[0.2em] font-didot">Project Coordinator</p>
-                    </div>
-                </div>
-
-                <!-- 企業致謝：Canon -->
-                <div class="space-y-6">
-                    <div class="h-[1px] w-16 gold-bg mx-auto opacity-20 mb-8"></div>
-                    <p class="font-didot text-2xl tracking-[0.3em] italic gold-text">Canon 佳能台灣</p>
-                    <p class="text-[10px] tracking-[0.2em] opacity-30">Grateful for providing vision and high-quality storytelling support.</p>
-                </div>
-            </div>
-
-            <!-- 線上回饋表單 -->
-            <div class="max-w-2xl mx-auto bg-black/40 p-12 border border-white/5 rounded-sm shadow-2xl">
-                <h2 class="font-didot text-3xl mb-8 tracking-widest italic">Feedback</h2>
-                <p class="text-sm text-gray-500 mb-12">寫下一封跨越國界的信。即便無法親臨現場，您的祝福仍能透過這座橋樑傳遞。</p>
-                <form class="space-y-6">
-                    <input type="text" name="name" placeholder="您的姓名 Name" class="w-full bg-zinc-900/50 border border-white/10 px-6 py-4 text-sm focus:gold-border outline-none transition-all">
-                    <textarea name="message" placeholder="寫下您的回饋 Message..." rows="6" class="w-full bg-zinc-900/50 border border-white/10 px-6 py-4 text-sm focus:gold-border outline-none transition-all"></textarea>
-                    <button type="submit" class="w-full gold-bg text-black font-bold py-5 text-xs tracking-[0.3em] hover:bg-yellow-600 transition-all uppercase font-didot">Send Message</button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- 頁尾 -->
-    <footer class="py-20 border-t border-white/5 bg-black px-6 text-center">
-        <div class="max-w-4xl mx-auto">
-            <div class="mb-12">
-                <p class="text-[10px] tracking-[0.4em] opacity-30 uppercase mb-4 font-didot text-white">Under the Guidance of</p>
-                <a href="https://oia.nchu.edu.tw/index.php/zh/" target="_blank" class="text-xs gold-text tracking-widest hover:underline leading-relaxed">
-                    國立中興大學 國際事務處 <br> Office of International Affairs, NCHU
-                </a>
-            </div>
-
-            <div class="flex justify-center space-x-10 mb-12">
-                <a href="https://www.instagram.com/nchu_ivc?igsh=eXVsemRzOTNyMzc2" target="_blank" class="text-gray-500 hover:text-white transition-colors text-xs tracking-widest font-didot">INSTAGRAM</a>
-                <a href="https://www.facebook.com/share/1Dgu8EkMS1/?mibextid=wwXIfr" target="_blank" class="text-gray-500 hover:text-white transition-colors text-xs tracking-widest font-didot">FACEBOOK</a>
-            </div>
-            
-            <p class="text-[10px] text-zinc-700 tracking-[0.3em] uppercase font-didot">
-                &copy; 2026 NCHU International Volunteers Club. All Rights Reserved.
+            <!-- 小標 -->
+            <p class="text-xs tracking-[0.4em] mb-8 opacity-60 uppercase font-didot">
+                2026 Annual International Volunteers Club Exhibition
             </p>
-        </div>
-    </footer>
 
-    <!-- 彈窗 (Modals) 結構 -->
-    <div id="nepal-1" class="modal">
-        <div class="max-w-5xl mx-auto py-24 px-8 relative">
-            <button onclick="closeModal('nepal-1')" class="fixed top-10 right-10 text-white text-5xl hover:gold-text z-10">&times;</button>
-            <h3 class="font-didot text-4xl gold-text mb-3 italic">拉傑比拉傑：校園與微笑</h3>
-            <div class="h-[1px] w-full bg-white/10 mb-4"></div>
-            <p class="text-gray-400 leading-relaxed mb-10">即便資源匱乏，孩子們眼中閃爍的光芒卻是全世界最明亮的風景。</p>
-            <!-- 圖片網格：整理好後替換 YOUR_FILE_ID_X -->
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-            </div>
-        </div>
-    </div>
+            <!-- 主標題 -->
+            <h1 class="font-cinzel text-4xl sm:text-6xl lg:text-7xl mb-6 tracking-tight shadow-text whitespace-nowrap">
+                Tracing the Light
+            </h1>
 
-    <div id="nepal-2" class="modal">
-        <div class="max-w-5xl mx-auto py-24 px-8 relative">
-            <button onclick="closeModal('nepal-2')" class="fixed top-10 right-10 text-white text-5xl hover:gold-text z-10">&times;</button>
-            <h3 class="font-didot text-4xl gold-text mb-3 italic">文化連結：跨越 3000 公里</h3>
-            <div class="h-[1px] w-full bg-white/10 mb-4"></div>
-            <p class="text-gray-400 leading-relaxed mb-10">經幡隨風飛揚，我們跨越了地理與語言的限制，開始深層對話。</p>
-            <!-- 圖片網格：整理好後替換 YOUR_FILE_ID_X -->
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-            </div>
-        </div>
-    </div>
+            <!-- 副標 -->
+            <h2 class="text-base sm:text-lg gold-text tracking-[0.3em] mb-10 italic font-didot">
+                A Journey from Mud to Stars
+            </h2>
 
-    <div id="nepal-3" class="modal">
-        <div class="max-w-5xl mx-auto py-24 px-8 relative">
-            <button onclick="closeModal('nepal-3')" class="fixed top-10 right-10 text-white text-5xl hover:gold-text z-10">&times;</button>
-            <h3 class="font-didot text-4xl gold-text mb-3 italic">仰望星空：未來的希望</h3>
-            <div class="h-[1px] w-full bg-white/10 mb-4"></div>
-            <p class="text-gray-400 leading-relaxed mb-10">在無光害的高山上，我們共同許下約定。這份力量將伴隨我們前行。</p>
-            <!-- 圖片網格：整理好後替換 YOUR_FILE_ID_X -->
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-                <div class="w-full aspect-square bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-didot italic">PHOTO COMING SOON</div>
-            </div>
-        </div>
-    </div>
+            <!-- 金線 -->
+            <div class="h-px w-24 gold-bg mx-auto mb-10 opacity-50"></div>
 
-    <!-- 國內服務燈箱 -->
-    <div id="dom-1" class="modal">
-        <div class="max-w-5xl mx-auto py-24 px-8 relative">
-            <button onclick="closeModal('dom-1')" class="fixed top-10 right-10 text-white text-5xl hover:gold-text z-10">&times;</button>
-            <h3 class="font-didot text-4xl gold-text mb-3 italic">雲林育幼院：溫慢陪伴</h3>
-            <div class="h-[1px] w-full bg-white/10 mb-4"></div>
-            <p class="text-gray-400 leading-relaxed mb-10">透過長期的課業輔導與陪伴，我們希望成為孩子們成長路上的微光。</p>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <img src="https://lh3.googleusercontent.com/d/1SdfHpsGEbK5J5Dcf8KNHt1Cr5LW_QAKN" alt="育幼院 1" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1YzDG1phf6O1HKEyn3A102JI3O9HhG9Zo" alt="育幼院 2" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/18MRtpXs-ppaxkTphkZd1QIACII_GNIjh" alt="育幼院 3" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1s30YY5npiHLbVyHRKVcrVCtlU2APR0Ty" alt="育幼院 4" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1bJOxjMzpoGnUkNh2k8hEhZAXO-Bo27W1" alt="育幼院 5" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1q-BZfh8zEtbQO11NKAZ0kSOXtRar-7xa" alt="育幼院 6" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1eSatSa4Bom4-355ZLXo_ejmE6_muzdmy" alt="育幼院 7" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/13DoiVVqxMuekEfD9TTU1rjEievZwBXzr" alt="育幼院 8" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1qzqJ6_HnBMk9QNvfvChpDfLbKHjstc_I" alt="育幼院 9" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1nZfYH7UefGZNqIeT1qGHd-li2rDShbtS" alt="育幼院 10" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-            </div>
-        </div>
-    </div>
+            <!-- 開展資訊 -->
+            <p class="text-xs tracking-[0.3em] opacity-50 uppercase mb-2 font-didot">Opening on</p>
+            <p class="text-sm sm:text-base tracking-[0.2em] mb-12 leading-loose">
+                05 / 11 &nbsp;MON. &nbsp;2026<br>
+                <span class="text-xs opacity-50">國立中興大學 雲平樓 1F</span>
+            </p>
 
-    <div id="dom-2" class="modal">
-        <div class="max-w-5xl mx-auto py-24 px-8 relative">
-            <button onclick="closeModal('dom-2')" class="fixed top-10 right-10 text-white text-5xl hover:gold-text z-10">&times;</button>
-            <h3 class="font-didot text-4xl gold-text mb-3 italic">狗園守護：生命的重量</h3>
-            <div class="h-[1px] w-full bg-white/10 mb-4"></div>
-            <p class="text-gray-400 leading-relaxed mb-10">在流浪狗園中，我們學習與生命對話，實踐對每一個生命的尊重。</p>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <img src="https://lh3.googleusercontent.com/d/1Mhh1PWWrgjxeFyLOOvat4b0EtS4cnuy6" alt="狗園 1" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1nchGGDvJFnknxGHZsfqPLi_0v5saDQEB" alt="狗園 2" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1le7V3MeVTD41ZKRzN3hlSdnjzvZ3r0B3" alt="狗園 3" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1p6RYMOSXBtlzbf18JBQzFS0s70zbKi7U" alt="狗園 4" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1hnCAP4pLSyduPvNVkIQZsPpULcodBhZJ" alt="狗園 5" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1IZbOyXvUxnVnriOzmxxzAScsg9UGd5uX" alt="狗園 6" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1nAd2_VXvRCbm5jgGIjMgSthe8fkhL-2Y" alt="狗園 7" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1hBQEZUnhcX7NBS63dwdj8ilzDd8EKy5_" alt="狗園 8" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1EKOzo1-IUTDN8vHuq5wfFwdV4oRiqdb5" alt="狗園 9" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
+            <!-- 倒數計時 -->
+            <div class="flex items-end justify-center mb-14" id="countdown">
+                <div class="countdown-box">
+                    <span class="countdown-num" id="cd-days">--</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-num" id="cd-hours">--</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-num" id="cd-mins">--</span>
+                    <span class="countdown-label">Mins</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-num" id="cd-secs">--</span>
+                    <span class="countdown-label">Secs</span>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div id="dom-3" class="modal">
-        <div class="max-w-5xl mx-auto py-24 px-8 relative">
-            <button onclick="closeModal('dom-3')" class="fixed top-10 right-10 text-white text-5xl hover:gold-text z-10">&times;</button>
-            <h3 class="font-didot text-4xl gold-text mb-3 italic">苗栗農田：友善土地</h3>
-            <div class="h-[1px] w-full bg-white/10 mb-4"></div>
-            <p class="text-gray-400 leading-relaxed mb-10">走入農間體驗永續耕作，重新建立人與自然環境的親密橋樑。</p>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <img src="https://lh3.googleusercontent.com/d/1_r2Csnr8ECpH8LD6MhCaQJFKcN5qKJpf" alt="農田 1" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1SQGuRA_CNs6OPA-BEDTMh5hlIKLadGNU" alt="農田 2" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/19lqsVbtaoqz2Y0bu_IFFivtlm4sGZMy4" alt="農田 3" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1LvGu8TKsep6pgUFYJd56FISjoibo_ZPJ" alt="農田 4" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1OPVAG-hfIqfpw5GeLvq9QyVAE-FalB4t" alt="農田 5" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1-BT-Pokccg3euvPHnToi1C84MdOA5Eyj" alt="農田 6" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1RTCAX1vds-fTT1QgdV3Du2rK0uDWV6kI" alt="農田 7" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1wwpBnsWFa8Gl0L4tGC6LyN-OVa9NzJh_" alt="農田 8" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1ZQH4iWk8x81zJBgpbjwsDAgNKXiznBi1" alt="農田 9" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1H_3hUKPwJj65u-0cJhBHtoqzMhzpGMVf" alt="農田 10" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1rq8ITYAoAbXmwR-61_7L-vOL6ol1pkzg" alt="農田 11" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/10tLG9emGfh_JxZfxWyviC593W69ZN6r0" alt="農田 12" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1UxQUsBbmW7yK16y2wo6kHCI346aD-PDn" alt="農田 13" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1paZkOp9YqIjKIPSCH8_7lCb3E9dBKenH" alt="農田 14" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1PxCxjz843j5BdsMf2h81xnv9oNkpGH9H" alt="農田 15" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/10RekMIaEppdfM3Ydi9E4kWIMD6rNN46s" alt="農田 16" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1DanZAxhn72PMQ-d4P6DgFgbmqkJzzsUl" alt="農田 17" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1C2aAI0PPWQr3t4s1BJKCkuJ6gx3UBDCl" alt="農田 18" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1MkTETKYXb24q2qjEKHFQiKzWs80C5W38" alt="農田 19" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1qESFJqqKoSlbElluG6dhgB_s4B2RFGKZ" alt="農田 20" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1yBUbw_1tBSqA3vjbavwI8MZpvBgHJwXc" alt="農田 21" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
-                <img src="https://lh3.googleusercontent.com/d/1joAD3LZLhhHZjPPlJYWhzwWXdhx5PBuA" alt="農田 22" class="w-full aspect-square object-cover hover:opacity-80 transition-opacity cursor-zoom-in">
+            <!-- 社群連結 -->
+            <div class="flex justify-center space-x-8 text-[10px] tracking-widest opacity-40 font-didot">
+                <a href="https://www.instagram.com/nchu_ivc?igsh=eXVsemRzOTNyMzc2" target="_blank" class="hover:opacity-80 transition-opacity uppercase">Instagram</a>
+                <a href="https://www.facebook.com/share/1Dgu8EkMS1/?mibextid=wwXIfr" target="_blank" class="hover:opacity-80 transition-opacity uppercase">Facebook</a>
             </div>
+
         </div>
-    </div>
+    </section>
 
     <script>
-        const menuBtn = document.getElementById('menu-btn');
-        const closeBtn = document.getElementById('close-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+        const target = new Date('2026-05-11T00:00:00+08:00');
 
-        menuBtn.addEventListener('click', () => mobileMenu.classList.remove('translate-x-full'));
-        closeBtn.addEventListener('click', () => mobileMenu.classList.add('translate-x-full'));
+        function update() {
+            const now  = new Date();
+            const diff = target - now;
 
-        document.querySelectorAll('.mobile-nav-link').forEach(link => {
-            link.addEventListener('click', () => mobileMenu.classList.add('translate-x-full'));
-        });
-
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('active');
-                document.body.style.overflow = 'auto';
+            if (diff <= 0) {
+                document.getElementById('cd-days').textContent  = '00';
+                document.getElementById('cd-hours').textContent = '00';
+                document.getElementById('cd-mins').textContent  = '00';
+                document.getElementById('cd-secs').textContent  = '00';
+                return;
             }
+
+            const days  = Math.floor(diff / 86400000);
+            const hours = Math.floor((diff % 86400000) / 3600000);
+            const mins  = Math.floor((diff % 3600000)  / 60000);
+            const secs  = Math.floor((diff % 60000)    / 1000);
+
+            document.getElementById('cd-days').textContent  = String(days).padStart(2, '0');
+            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('cd-mins').textContent  = String(mins).padStart(2, '0');
+            document.getElementById('cd-secs').textContent  = String(secs).padStart(2, '0');
         }
+
+        update();
+        setInterval(update, 1000);
     </script>
 </body>
 </html>
